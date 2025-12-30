@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    env:
+      PHP_VERSION: 8.4
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -26,5 +28,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:latest
+          tags: ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}
  

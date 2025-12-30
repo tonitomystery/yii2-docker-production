@@ -1,4 +1,7 @@
-FROM yiisoftware/yii2-php:8.4-apache-min
+
+# Usa la misma versión que el workflow
+ARG PHP_VERSION=8.4
+FROM yiisoftware/yii2-php:${PHP_VERSION}-apache-min
 
 WORKDIR /app
 
