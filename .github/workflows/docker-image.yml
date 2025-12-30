@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       PHP_VERSION: 8.4
+      APACHE_VARIANT: apache-min
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,5 +29,8 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}
+          build-args: |
+            PHP_VERSION=${{ env.PHP_VERSION }}
+            APACHE_VARIANT=${{ env.APACHE_VARIANT }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.APACHE_VARIANT }}
  
