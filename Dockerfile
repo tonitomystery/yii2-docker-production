@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libmariadb-dev libmariadb-dev-compat \
     libpq-dev libmagickwand-dev libmemcached-dev libssl-dev \
     libzip-dev pkg-config \
-    locales cron \
+    locales cron supervisor\
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql pdo_pgsql gd zip intl pcntl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
