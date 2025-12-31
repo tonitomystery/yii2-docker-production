@@ -2,6 +2,8 @@
 
 Este proyecto contiene la configuración necesaria para construir y desplegar una imagen Docker de una aplicación Yii2.
 
+**Docker Hub:** [amaristany/yii2-docker-prod](https://hub.docker.com/r/amaristany/yii2-docker-prod)
+
 ## Estructura
 - `Dockerfile`: Archivo de configuración para construir la imagen Docker.
 - `.github/workflows/docker-image.yml`: Workflow de GitHub Actions para compilar y subir la imagen a DockerHub.
