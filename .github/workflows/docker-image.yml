@@ -11,6 +11,7 @@ jobs:
     env:
       PHP_VERSION: 8.4
       APACHE_VARIANT: apache-min
+      NGINX_VARIANT: fpm-nginx-min
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,13 +25,24 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
+      - name: Build and push Docker image apache
         uses: docker/build-push-action@v5
         with:
           context: .
+          file: Dockerfile.apache
           push: true
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
             APACHE_VARIANT=${{ env.APACHE_VARIANT }}
           tags: ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.APACHE_VARIANT }}
- 
+
+      - name: Build and push Docker image fpm-nginx
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: Dockerfile.fpm-nginx
+          push: true
+          build-args: |
+            PHP_VERSION=${{ env.PHP_VERSION }}
+            NGINX_VARIANT=${{ env.NGINX_VARIANT }}
+          tags: ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.NGINX_VARIANT }}
