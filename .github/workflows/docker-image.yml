@@ -32,6 +32,8 @@ jobs:
           context: .
           file: Dockerfile.apache
           push: true
+          pull: true
+          no-cache: true
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
             APACHE_VARIANT=${{ env.APACHE_VARIANT }}
@@ -43,6 +45,8 @@ jobs:
           context: .
           file: Dockerfile.fpm-nginx
           push: true
+          pull: true
+          no-cache: true
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
             NGINX_VARIANT=${{ env.NGINX_VARIANT }}
