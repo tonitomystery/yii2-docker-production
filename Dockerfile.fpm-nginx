@@ -9,19 +9,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git unzip curl \
     libpng-dev libjpeg-dev libfreetype6-dev \
     libmariadb-dev libmariadb-dev-compat \
-    libpq-dev libmagickwand-dev libmemcached-dev libssl-dev \
+    libpq-dev libmagickwand-dev imagemagick \
+    libmemcached-dev libssl-dev zlib1g-dev \
     libzip-dev pkg-config \
-    locales cron supervisor\
+    locales cron supervisor \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo_mysql pdo_pgsql gd zip intl pcntl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-RUN docker-php-ext-enable opcache \
-    && pecl install imagick \
-    && docker-php-ext-enable imagick \
-    && pecl install memcached \
+RUN pecl install imagick \
+    && docker-php-ext-enable imagick
+RUN pecl install memcached \
     && docker-php-ext-enable memcached
 
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
