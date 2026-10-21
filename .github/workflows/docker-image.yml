@@ -28,7 +28,7 @@ jobs:
     env:
       PHP_VERSION: ${{ matrix.php }}
       APACHE_VARIANT: apache-min
-      NGINX_VARIANT: fpm-latest-nginx-min
+      NGINX_VARIANT: fpm-nginx-min
       IMAGE_VERSION: v1
     steps:
       - name: Checkout repository
