@@ -4,6 +4,12 @@ on:
   push:
     branches:
       - main
+  # Permite reconstruir manualmente desde la pestaña Actions (p. ej. tras una
+  # release de seguridad de PHP en la imagen base) sin hacer commits vacíos.
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build-and-push:
@@ -16,6 +22,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set image name and short SHA
+        run: |
+          echo "IMAGE=${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod" >> "$GITHUB_ENV"
+          echo "SHORT_SHA=${GITHUB_SHA::7}" >> "$GITHUB_ENV"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -25,6 +36,8 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # Además del tag mutable (…-v1) se publica un tag inmutable con el SHA del
+      # commit (…-v1-sha-abc1234) para poder desplegar una versión exacta y hacer rollback.
       - name: Build and push Docker image apache
         uses: docker/build-push-action@v5
         with:
