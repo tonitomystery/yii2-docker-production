@@ -1,6 +1,6 @@
 
 ARG PHP_VERSION=8.4
-ARG NGINX_VARIANT=fpm-nginx-min
+ARG NGINX_VARIANT=fpm-latest-nginx-min
 FROM yiisoftware/yii2-php:${PHP_VERSION}-${NGINX_VARIANT}
 
 WORKDIR /app
