@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   # Permite reconstruir manualmente desde la pestaña Actions (p. ej. tras una
   # release de seguridad de PHP en la imagen base) sin hacer commits vacíos.
   workflow_dispatch:
@@ -46,7 +49,7 @@ jobs:
         with:
           context: .
           file: Dockerfile.apache
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           pull: true
           no-cache: true
           build-args: |
@@ -60,7 +63,7 @@ jobs:
         with:
           context: .
           file: Dockerfile.fpm-nginx
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           pull: true
           no-cache: true
           build-args: |
