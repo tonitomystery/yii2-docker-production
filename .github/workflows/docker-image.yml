@@ -12,7 +12,6 @@ jobs:
       PHP_VERSION: 8.5
       APACHE_VARIANT: apache-min
       NGINX_VARIANT: fpm-nginx-min
-      IMAGE_VERSION: v1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,7 +36,9 @@ jobs:
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
             APACHE_VARIANT=${{ env.APACHE_VARIANT }}
-          tags: ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.APACHE_VARIANT }}-${{ env.IMAGE_VERSION}}
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.APACHE_VARIANT }}-${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.APACHE_VARIANT }}-latest
 
       - name: Build and push Docker image fpm-nginx
         uses: docker/build-push-action@v5
@@ -50,4 +51,6 @@ jobs:
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
             NGINX_VARIANT=${{ env.NGINX_VARIANT }}
-          tags: ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.NGINX_VARIANT }}-${{ env.IMAGE_VERSION}}
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.NGINX_VARIANT }}-${{ github.sha }}
+            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.NGINX_VARIANT }}-latest
