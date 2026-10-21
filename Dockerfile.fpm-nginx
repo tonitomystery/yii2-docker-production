@@ -30,7 +30,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-RUN pecl install imagick \
+RUN curl -fsSL https://github.com/Imagick/imagick/archive/refs/tags/3.8.1.tar.gz -o /tmp/imagick.tar.gz \
+    && mkdir -p /tmp/imagick \
+    && tar -xzf /tmp/imagick.tar.gz -C /tmp/imagick --strip-components=1 \
+    && cd /tmp/imagick \
+    && phpize \
+    && ./configure \
+    && make -j"$(nproc)" \
+    && make install \
+    && cd / \
+    && rm -rf /tmp/imagick /tmp/imagick.tar.gz \
     && docker-php-ext-enable imagick
 RUN pecl install memcached \
     && docker-php-ext-enable memcached
