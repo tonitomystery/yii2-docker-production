@@ -30,19 +30,25 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-RUN curl -fsSL https://github.com/Imagick/imagick/archive/refs/tags/3.8.1.tar.gz -o /tmp/imagick.tar.gz \
-    && mkdir -p /tmp/imagick \
-    && tar -xzf /tmp/imagick.tar.gz -C /tmp/imagick --strip-components=1 \
-    && cd /tmp/imagick \
-    && phpize \
-    && ./configure \
-    && make -j"$(nproc)" \
-    && make install \
-    && cd / \
-    && rm -rf /tmp/imagick /tmp/imagick.tar.gz \
-    && docker-php-ext-enable imagick
-RUN pecl install memcached \
-    && docker-php-ext-enable memcached
+# imagick y memcached se compilan desde los tags oficiales en GitHub en lugar de
+# "pecl install": pecl.php.net falla de forma intermitente ("does not have REST xml
+# available") y además sin versión fija el build no es reproducible.
+ARG IMAGICK_VERSION=3.8.1
+ARG MEMCACHED_VERSION=3.4.0
+RUN set -eux; \
+    docker-php-source extract; \
+    mkdir -p /usr/src/php/ext/imagick /usr/src/php/ext/memcached; \
+    curl -fsSL "https://github.com/Imagick/imagick/archive/refs/tags/${IMAGICK_VERSION}.tar.gz" \
+        | tar -xz --strip-components=1 -C /usr/src/php/ext/imagick; \
+    # El tarball de git trae la versión como placeholder (PECL la sustituye al empaquetar);
+    # sin esto phpversion('imagick') devuelve "@PACKAGE_VERSION@" y composer falla.
+    sed -i "s/@PACKAGE_VERSION@/${IMAGICK_VERSION}/" /usr/src/php/ext/imagick/php_imagick.h; \
+    curl -fsSL "https://github.com/php-memcached-dev/php-memcached/archive/refs/tags/v${MEMCACHED_VERSION}.tar.gz" \
+        | tar -xz --strip-components=1 -C /usr/src/php/ext/memcached; \
+    docker-php-ext-install -j"$(nproc)" imagick memcached; \
+    docker-php-source delete; \
+    php -r 'exit(phpversion("imagick") === getenv("IMAGICK_VERSION") ? 0 : 1);'; \
+    php -m | grep -qx memcached
 
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
     && php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
