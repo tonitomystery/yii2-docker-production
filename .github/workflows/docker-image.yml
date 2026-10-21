@@ -18,7 +18,6 @@ jobs:
       PHP_VERSION: 8.5
       APACHE_VARIANT: apache-min
       NGINX_VARIANT: fpm-nginx-min
-      IMAGE_VERSION: v1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
