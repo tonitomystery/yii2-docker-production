@@ -7,6 +7,10 @@ on:
   pull_request:
     branches:
       - main
+  # Reconstruye cada lunes para recoger nuevas releases de PHP (p. ej. 8.4.x) de la
+  # imagen base yiisoftware/yii2-php, que cambia sin que este repo reciba commits.
+  schedule:
+    - cron: "0 6 * * 1"
   # Permite reconstruir manualmente desde la pestaña Actions (p. ej. tras una
   # release de seguridad de PHP en la imagen base) sin hacer commits vacíos.
   workflow_dispatch:
