@@ -50,8 +50,8 @@ jobs:
             PHP_VERSION=${{ env.PHP_VERSION }}
             APACHE_VARIANT=${{ env.APACHE_VARIANT }}
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.APACHE_VARIANT }}-${{ github.sha }}
-            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.APACHE_VARIANT }}-latest
+            ${{ env.IMAGE }}:${{ env.PHP_VERSION }}-${{ env.APACHE_VARIANT }}-${{ env.IMAGE_VERSION }}
+            ${{ env.IMAGE }}:${{ env.PHP_VERSION }}-${{ env.APACHE_VARIANT }}-${{ env.IMAGE_VERSION }}-sha-${{ env.SHORT_SHA }}
 
       - name: Build and push Docker image fpm-nginx
         uses: docker/build-push-action@v5
@@ -65,5 +65,21 @@ jobs:
             PHP_VERSION=${{ env.PHP_VERSION }}
             NGINX_VARIANT=${{ env.NGINX_VARIANT }}
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.NGINX_VARIANT }}-${{ github.sha }}
-            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.NGINX_VARIANT }}-latest
+            ${{ env.IMAGE }}:${{ env.PHP_VERSION }}-${{ env.NGINX_VARIANT }}-${{ env.IMAGE_VERSION }}
+            ${{ env.IMAGE }}:${{ env.PHP_VERSION }}-${{ env.NGINX_VARIANT }}-${{ env.IMAGE_VERSION }}-sha-${{ env.SHORT_SHA }}
+
+      # Deja en el log y en el resumen del job la versión exacta de PHP publicada,
+      # para confirmar que el parche de seguridad llegó sin bajar la imagen.
+      - name: Report PHP version in published images
+        run: |
+          {
+            echo "## Imágenes publicadas"
+            echo
+            for variant in "$APACHE_VARIANT" "$NGINX_VARIANT"; do
+              ref="$IMAGE:${PHP_VERSION}-${variant}-${IMAGE_VERSION}-sha-${SHORT_SHA}"
+              echo "### \`$ref\`"
+              echo '```'
+              docker run --rm --entrypoint php "$ref" -v
+              echo '```'
+            done
+          } | tee -a "$GITHUB_STEP_SUMMARY"
