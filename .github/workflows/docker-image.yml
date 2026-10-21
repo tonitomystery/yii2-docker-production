@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   # Permite reconstruir manualmente desde la pestaña Actions (p. ej. tras una
   # release de seguridad de PHP en la imagen base) sin hacer commits vacíos.
   workflow_dispatch:
@@ -14,10 +17,15 @@ permissions:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ["8.4", "8.5"]
     env:
-      PHP_VERSION: 8.5
+      PHP_VERSION: ${{ matrix.php }}
       APACHE_VARIANT: apache-min
       NGINX_VARIANT: fpm-nginx-min
+      IMAGE_VERSION: v1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,34 +44,30 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Además del tag mutable (…-v1) se publica un tag inmutable con el SHA del
-      # commit (…-v1-sha-abc1234) para poder desplegar una versión exacta y hacer rollback.
       - name: Build and push Docker image apache
         uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile.apache
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           pull: true
           no-cache: true
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
             APACHE_VARIANT=${{ env.APACHE_VARIANT }}
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.APACHE_VARIANT }}-${{ github.sha }}
-            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.APACHE_VARIANT }}-latest
+            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.APACHE_VARIANT }}-${{ env.IMAGE_VERSION }}
 
       - name: Build and push Docker image fpm-nginx
         uses: docker/build-push-action@v5
         with:
           context: .
           file: Dockerfile.fpm-nginx
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           pull: true
           no-cache: true
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
             NGINX_VARIANT=${{ env.NGINX_VARIANT }}
           tags: |
-            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.NGINX_VARIANT }}-${{ github.sha }}
-            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.NGINX_VARIANT }}-latest
+            ${{ secrets.DOCKER_USERNAME }}/yii2-docker-prod:${{ env.PHP_VERSION }}-${{ env.NGINX_VARIANT }}-${{ env.IMAGE_VERSION }}
