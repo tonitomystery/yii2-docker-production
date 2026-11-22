@@ -41,3 +41,5 @@ Modifica el `Dockerfile` según las necesidades de tu aplicación Yii2.
 ## Licencia
 
 MIT
+
+
