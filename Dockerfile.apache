@@ -18,6 +18,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && docker-php-ext-install pdo_mysql pdo_pgsql gd zip intl pcntl \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Endurecimiento PHP (CVE-2026-115560: session.upload_progress)
+COPY php/zz-security.ini /usr/local/etc/php/conf.d/zz-security.ini
+
 
 # imagick y memcached se compilan desde los tags oficiales en GitHub en lugar de
 # "pecl install": pecl.php.net falla de forma intermitente ("does not have REST xml
